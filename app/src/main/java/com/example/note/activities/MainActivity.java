@@ -18,22 +18,21 @@ import com.example.note.R;
 import com.example.note.adapters.NotesAdapter;
 import com.example.note.database.NotesDatabase;
 import com.example.note.entities.Notes;
+import com.example.note.listeners.NotesListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NotesListener {
 
     private RecyclerView notesRecyclerView;
     private List<Notes> noteList;
     private NotesAdapter notesAdapter;
     private ActivityResultLauncher<Intent> addNoteLauncher;
-    // hàm khởi tạo activity và khởi tạo các biến cần thiết
-    // cũng như gán sự kiện khi click vào nút tạo note mới
-    // và gọi hàm lấy dữ liệu từ database
-    // và hiển thị
-    // và gán sự kiện khi nhận kết quả trả về từ activity tạo note mới
+    public int noteClickedPosition = -1;
+    public final static int REQUEST_CODE_SHOW_NOTE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,9 +41,11 @@ public class MainActivity extends AppCompatActivity {
         addNoteLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        // Handle the result if needed
-                        getNotes();
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        boolean isNoteUpdated = result.getData().getBooleanExtra("isNoteUpdated", false);
+                        if (isNoteUpdated) {
+                            getNotes();
+                        }
                     }
                 }
         );
@@ -52,9 +53,8 @@ public class MainActivity extends AppCompatActivity {
         notesRecyclerView = findViewById(R.id.notesRecyclerView);
         notesRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         noteList = new ArrayList<>();
-        notesAdapter = new NotesAdapter(noteList);
+        notesAdapter = new NotesAdapter(noteList, this);
         notesRecyclerView.setAdapter(notesAdapter);
-
 
         ImageView imageAddNoteMain = findViewById(R.id.imageAddNoteMain);
         imageAddNoteMain.setOnClickListener(view -> {
@@ -63,34 +63,34 @@ public class MainActivity extends AppCompatActivity {
         });
         getNotes();
     }
-    // hàm lấy dữ liệu từ database và hiển thị
+
+    @Override
+    public void onNoteClicked(Notes note, int position) {
+        noteClickedPosition = position;
+        Intent intent = new Intent(MainActivity.this, createNoteActivity.class);
+        intent.putExtra("isViewOrUpdate", true);
+        intent.putExtra("note", note);
+        addNoteLauncher.launch(intent);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private void getNotes() {
         Executors.newSingleThreadExecutor().execute(() -> {
             final List<Notes> notes = NotesDatabase
                     .getDatabase(getApplicationContext())
                     .noteDao().getAllNotes();
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void run() {
-                    if(noteList.isEmpty()){
-                        noteList.addAll(notes);
-                        notesAdapter.notifyDataSetChanged();
-                    }
-                    else{
-                        noteList.add(0, notes.get(0));
-                        notesAdapter.notifyItemInserted(0);
-                    }
-                    notesRecyclerView.smoothScrollToPosition(0);
-                }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                noteList.clear();
+                noteList.addAll(notes);
+                notesAdapter.notifyDataSetChanged();
             });
         });
     }
-    // hàm nhận kết quả trả về từ activity tạo note mới và cập nhật dữ liệu
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             getNotes();
         }
     }

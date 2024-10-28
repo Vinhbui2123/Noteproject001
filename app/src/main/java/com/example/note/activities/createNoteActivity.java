@@ -6,10 +6,12 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +21,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,8 +50,6 @@ import java.util.concurrent.Executors;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
-import android.view.View;
 import android.content.res.ColorStateList;
 
 public class createNoteActivity extends AppCompatActivity {
@@ -70,8 +70,11 @@ public class createNoteActivity extends AppCompatActivity {
 
     private AlertDialog dialogAddURL;
 
+    private Notes alreadyAvailableNote;
+
 
     // hàm onCreate() được gọi khi activity được tạo ra dùng để khởi tạo activity
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +103,15 @@ public class createNoteActivity extends AppCompatActivity {
         selectedNoteColor = "#333333";
         selectedImagePath = "";
 
+        if(getIntent().getBooleanExtra("isViewOrUpdate", false)) {
+            alreadyAvailableNote = (Notes) getIntent().getSerializableExtra("note");
+            setViewOrUpdateNote();
+        }
+        findViewById(R.id.imageSave).setOnClickListener(view -> saveNote());
+
+
+
         TextView textView = findViewById(R.id.textMiscellaneous);
-        // hàm setBackground() dùng để thiết lập hình nền cho view
         // Hiệu ứng Ripple được hỗ trợ từ Android 5.0 (API 21) trở lên
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new RectShape());
@@ -112,14 +122,49 @@ public class createNoteActivity extends AppCompatActivity {
                     shapeDrawable,
                     null
             );
+            // hàm setBackground() dùng để thiết lập hình nền cho view
 
             textView.setBackground(rippleDrawable);
         }
-        // heloo
+
+        findViewById(R.id.imageRemoveImage).setOnClickListener(view -> {
+            imageNote.setImageBitmap(null);
+            imageNote.setVisibility(View.GONE);
+            findViewById(R.id.imageRemoveImage).setVisibility(View.GONE);
+            selectedImagePath = "";
+        });
+
+        findViewById(R.id.imageRemoveWebURL).setOnClickListener(view -> {
+            textWebUrl.setText(null);
+            layoutWebURL.setVisibility(View.GONE);
+        });
+
 
         initMiscellaneous();
         setSubtitleIndicatorColor();
 
+    }
+
+    private void setViewOrUpdateNote()
+    {
+        inputNoteTitle.setText(alreadyAvailableNote.getTitle());
+        inputNoteSubtitle.setText(alreadyAvailableNote.getSubtitle());
+        inputNoteText.setText(alreadyAvailableNote.getNoteText());
+        textDateTime.setText(alreadyAvailableNote.getDateTime());
+
+        if(alreadyAvailableNote.getImagePath() != null && !alreadyAvailableNote.getImagePath().trim().isEmpty())
+        {
+            imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote.getImagePath()));
+            imageNote.setVisibility(View.VISIBLE);
+            findViewById(R.id.imageRemoveImage).setVisibility(View.VISIBLE);
+            selectedImagePath = alreadyAvailableNote.getImagePath();
+        }
+
+        if(alreadyAvailableNote.getWebLink() != null && !alreadyAvailableNote.getWebLink().trim().isEmpty())
+        {
+            textWebUrl.setText(alreadyAvailableNote.getWebLink());
+            layoutWebURL.setVisibility(View.VISIBLE);
+        }
     }
     // hàm saveNote() dùng để lưu ghi chú
     private void saveNote() {
@@ -138,9 +183,28 @@ public class createNoteActivity extends AppCompatActivity {
         note.setDateTime(textDateTime.getText().toString());
         note.setColor(selectedNoteColor);
         note.setImagePath(selectedImagePath);
+
+        if (alreadyAvailableNote != null) {
+            note.setId(alreadyAvailableNote.getId());
+        }
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNotes(note);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Intent intent = new Intent();
+                intent.putExtra("isNoteUpdated", true);
+                setResult(RESULT_OK, intent);
+                finish();
+            });
+        });
         // hàm setWebLink() dùng để thiết lập đường dẫn web
         if(layoutWebURL.getVisibility() == View.VISIBLE) {
             note.setWebLink(textWebUrl.getText().toString());
+        }
+
+        if(alreadyAvailableNote != null)
+        {
+            note.setId(alreadyAvailableNote.getId());
         }
 
         // hàm execute() dùng để thực thi một tác vụ
@@ -220,45 +284,58 @@ public class createNoteActivity extends AppCompatActivity {
             imageColor5.setImageResource(R.drawable.ic_done);
             setSubtitleIndicatorColor();
         });
+
+        if(alreadyAvailableNote != null && alreadyAvailableNote.getColor() != null && !alreadyAvailableNote.getColor().trim().isEmpty())
+        {
+            switch (alreadyAvailableNote.getColor())
+            {
+                case "#FDBE3B":
+                    layoutMiscellaneous.findViewById(R.id.viewColor2).performClick();
+                    break;
+                case "#FF4842":
+                    layoutMiscellaneous.findViewById(R.id.viewColor3).performClick();
+                    break;
+                case "#3A52Fc":
+                    layoutMiscellaneous.findViewById(R.id.viewColor4).performClick();
+                    break;
+                case "#000000":
+                    layoutMiscellaneous.findViewById(R.id.viewColor5).performClick();
+                    break;
+            }
+        }
         // hàm setOnClickListener() dùng để xử lý sự kiện khi người dùng click vào một view và chọn ảnh từ thư viện ảnh
-        layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(
-                            getApplicationContext(), Manifest.permission.READ_MEDIA_IMAGES
-                    ) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(
-                                createNoteActivity.this,
-                                new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                                REQUEST_CODE_STORAGE_PERMISSION
-                        );
-                    } else {
-                        selectImage();
-                    }
+        layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(view -> {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(
+                        getApplicationContext(), Manifest.permission.READ_MEDIA_IMAGES
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            createNoteActivity.this,
+                            new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                            REQUEST_CODE_STORAGE_PERMISSION
+                    );
                 } else {
-                    if (ContextCompat.checkSelfPermission(
-                            getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE
-                    ) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(
-                                createNoteActivity.this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                REQUEST_CODE_STORAGE_PERMISSION
-                        );
-                    } else {
-                        selectImage();
-                    }
+                    selectImage();
+                }
+            } else {
+                if (ContextCompat.checkSelfPermission(
+                        getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            createNoteActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_CODE_STORAGE_PERMISSION
+                    );
+                } else {
+                    selectImage();
                 }
             }
         });
 
-        layoutMiscellaneous.findViewById(R.id.layoutAddUrl).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                showAddURLDialog();
-            }
+        layoutMiscellaneous.findViewById(R.id.layoutAddUrl).setOnClickListener(view -> {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            showAddURLDialog();
         });
     }
     // hàm setSubtitleIndicatorColor() dùng để thiết lập màu của tiêu đề phụ
@@ -300,6 +377,8 @@ public class createNoteActivity extends AppCompatActivity {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                         imageNote.setImageBitmap(bitmap);
                         imageNote.setVisibility(View.VISIBLE);
+                        findViewById(R.id.imageRemoveImage).setVisibility(View.VISIBLE);
+
 
                         selectedImagePath = getPathFromUri(selectedImageUri);
                     } catch (Exception e) {
@@ -329,7 +408,7 @@ public class createNoteActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(createNoteActivity.this);
             View view = LayoutInflater.from(this).inflate(
                     R.layout.layout_add_url,
-                    (ViewGroup) findViewById(R.id.layoutAddUrlContainer)
+                    findViewById(R.id.layoutAddUrlContainer)
             );
             builder.setView(view);
 
@@ -342,28 +421,20 @@ public class createNoteActivity extends AppCompatActivity {
             final EditText inputURL = view.findViewById(R.id.inputURL);
             inputURL.requestFocus();
 
-            view.findViewById(R.id.textAdd).setOnClickListener(new View.OnClickListener() {
-                @Override
-                // hàm setOnClickListener() dùng để xử lý sự kiện khi người dùng click vào một view và kiểm tra đường dẫn web
-                public void onClick(View view) {
-                    if(inputURL.getText().toString().trim().isEmpty()) {
-                        Toast.makeText(createNoteActivity.this, "Enter URL", Toast.LENGTH_SHORT).show();
-                    } else if(!Patterns.WEB_URL.matcher(inputURL.getText().toString()).matches()) {
-                        Toast.makeText(createNoteActivity.this, "Enter valid URL", Toast.LENGTH_SHORT).show();
-                    } else {
-                        textWebUrl.setText(inputURL.getText().toString());
-                        layoutWebURL.setVisibility(View.VISIBLE);
-                        dialogAddURL.dismiss();
-                    }
-                }
-            });
-            // Hàm setOnClickListener() dùng để xử lý sự kiện khi người dùng click vào một view và hủy bỏ việc thêm đường dẫn web
-            view.findViewById(R.id.textCancel).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            // hàm setOnClickListener() dùng để xử lý sự kiện khi người dùng click vào một view và kiểm tra đường dẫn web
+            view.findViewById(R.id.textAdd).setOnClickListener(view1 -> {
+                if(inputURL.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(createNoteActivity.this, "Enter URL", Toast.LENGTH_SHORT).show();
+                } else if(!Patterns.WEB_URL.matcher(inputURL.getText().toString()).matches()) {
+                    Toast.makeText(createNoteActivity.this, "Enter valid URL", Toast.LENGTH_SHORT).show();
+                } else {
+                    textWebUrl.setText(inputURL.getText().toString());
+                    layoutWebURL.setVisibility(View.VISIBLE);
                     dialogAddURL.dismiss();
                 }
             });
+            // Hàm setOnClickListener() dùng để xử lý sự kiện khi người dùng click vào một view và hủy bỏ việc thêm đường dẫn web
+            view.findViewById(R.id.textCancel).setOnClickListener(view2 -> dialogAddURL.dismiss());
         }
         dialogAddURL.show();
     }
