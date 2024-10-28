@@ -115,6 +115,7 @@ public class createNoteActivity extends AppCompatActivity {
 
             textView.setBackground(rippleDrawable);
         }
+        // heloo
 
         initMiscellaneous();
         setSubtitleIndicatorColor();
