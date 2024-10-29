@@ -48,6 +48,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/imageBack"/>
 
+
+
             <EditText
                 android:id="@+id/inputNoteTitle"
                 android:layout_width="match_parent"
