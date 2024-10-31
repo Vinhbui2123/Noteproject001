@@ -32,7 +32,6 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements NotesListener {
 
-    private RecyclerView notesRecyclerView;
     private List<Notes> noteList;
     private NotesAdapter notesAdapter;
     private ActivityResultLauncher<Intent> addNoteLauncher;
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                 }
         );
 
-        notesRecyclerView = findViewById(R.id.notesRecyclerView);
+        RecyclerView notesRecyclerView = findViewById(R.id.notesRecyclerView);
         notesRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         noteList = new ArrayList<>();
         notesAdapter = new NotesAdapter(noteList, this);

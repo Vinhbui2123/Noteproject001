@@ -199,6 +199,7 @@ public class createNoteActivity extends AppCompatActivity {
                 setResult(RESULT_OK, intent);
                 finish();
             });
+
         });
         // hàm setWebLink() dùng để thiết lập đường dẫn web
         if(layoutWebURL.getVisibility() == View.VISIBLE) {
@@ -209,20 +210,20 @@ public class createNoteActivity extends AppCompatActivity {
         {
             note.setId(alreadyAvailableNote.getId());
         }
-
-        // hàm execute() dùng để thực thi một tác vụ
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNotes(note);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Intent intent = new Intent();
-                    setResult(RESULT_OK, intent);
-                    finish();
-                });
-            } catch (Exception e) {
-                Log.e("InsertNoteTask", "Error inserting note", e);
-            }
-        });
+        // loi o day
+        // // hàm execute() dùng để thực thi một tác vụ
+        // Executors.newSingleThreadExecutor().execute(() -> {
+        //     try {
+        //         NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNotes(note);
+        //         new Handler(Looper.getMainLooper()).post(() -> {
+        //             Intent intent = new Intent();
+        //             setResult(RESULT_OK, intent);
+        //             finish();
+        //         });
+        //     } catch (Exception e) {
+        //         Log.e("InsertNoteTask", "Error inserting note", e);
+        //     }
+        // });
     }
     // hàm initMiscellaneous() dùng để khởi tạo các mục khác
     private void initMiscellaneous() {
