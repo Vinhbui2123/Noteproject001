@@ -91,7 +91,7 @@
                 android:layout_marginEnd="@dimen/_12sdp"
                 android:background="@null"
                 android:fontFamily="@font/ubuntu_medium"
-                android:hint="Phụ đề"
+                android:hint="Phụ đề (tùy chọn)"
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="textMultiLine"
