@@ -10,4 +10,6 @@
     <string name="delete_note">Delete note</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="ch_n_m_u">Chọn màu</string>
+    <string name="h_y">Hủy</string>
 </resources>

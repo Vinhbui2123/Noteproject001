@@ -17,10 +17,11 @@
         android:layout_marginEnd="@dimen/_12sdp"
         android:fontFamily="@font/ubuntu_bold"
         android:includeFontPadding="false"
-        android:text="My Notes"
+        android:text="Ghi chú"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/_20ssp"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
         android:id="@+id/layoutSearch"
@@ -48,13 +49,14 @@
             android:layout_marginStart="@dimen/_12sdp"
             android:background="@null"
             android:fontFamily="@font/ubuntu_regular"
-            android:hint="@string/search_notes"
+            android:hint="Tìm kiếm"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:inputType="text"
             android:textColor="@color/colorWhite"
             android:textColorHint="@color/colorTextHint"
-            android:textSize="@dimen/_15ssp"/>
+            android:textSize="@dimen/_15ssp"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 

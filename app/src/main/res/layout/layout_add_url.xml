@@ -28,7 +28,7 @@
         android:layout_marginEnd="@dimen/_8sdp"
         android:fontFamily="@font/ubuntu_bold"
         android:includeFontPadding="false"
-        android:text="Add Url"
+        android:text="Thêm URL"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/_14ssp"
         app:layout_constraintBottom_toBottomOf="@id/imageAddURL"
@@ -47,7 +47,7 @@
         android:background="@null"
         android:fontFamily="@font/ubuntu_regular"
         android:gravity="center_vertical"
-        android:hint="Enter URL"
+        android:hint="Nhập URL"
         android:textColor="@color/colorWhite"
         android:imeOptions="actionDone"
         android:importantForAutofill="no"
@@ -69,12 +69,13 @@
         android:fontFamily="@font/ubuntu_medium"
         android:includeFontPadding="false"
         android:padding="@dimen/_8sdp"
-        android:text="@string/add"
+        android:text="Thêm"
         android:textColor="@color/colorAccent"
         android:textSize="@dimen/_13ssp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/inputURL"/>
+        app:layout_constraintTop_toBottomOf="@id/inputURL"
+        tools:ignore="HardcodedText" />
     
     <TextView
         android:id="@+id/textCancel"
@@ -85,7 +86,7 @@
         android:fontFamily="@font/ubuntu_medium"
         android:includeFontPadding="false"
         android:padding="@dimen/_8sdp"
-        android:text="@string/cancel"
+        android:text="@string/h_y"
         android:textColor="@color/colorDelete"
         android:textSize="@dimen/_13ssp"
         app:layout_constraintBottom_toBottomOf="parent"

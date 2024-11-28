@@ -58,7 +58,7 @@
                 android:layout_marginTop="@dimen/_15sdp"
                 android:layout_marginEnd="@dimen/_12sdp"
                 android:background="@null"
-                android:hint="@string/note_title"
+                android:hint="Tiêu đề"
                 android:fontFamily="@font/ubuntu_bold"
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
@@ -67,7 +67,8 @@
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorTextHint"
                 android:textSize="@dimen/_15ssp"
-                app:layout_constraintTop_toBottomOf="@id/imageBack"/>
+                app:layout_constraintTop_toBottomOf="@id/imageBack"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/textDateTime"
@@ -90,7 +91,7 @@
                 android:layout_marginEnd="@dimen/_12sdp"
                 android:background="@null"
                 android:fontFamily="@font/ubuntu_medium"
-                android:hint="@string/note_subtitle"
+                android:hint="Phụ đề"
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="textMultiLine"
@@ -101,7 +102,8 @@
                 android:textSize="@dimen/_14ssp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/viewSubtitleIndicator"
-                app:layout_constraintTop_toBottomOf="@id/textDateTime"/>
+                app:layout_constraintTop_toBottomOf="@id/textDateTime"
+                tools:ignore="HardcodedText" />
             
             <View
                 android:id="@+id/viewSubtitleIndicator"
@@ -186,7 +188,7 @@
                 android:background="@null"
                 android:fontFamily="@font/ubuntu_regular"
                 android:gravity="top"
-                android:hint="@string/type_note_here"
+                android:hint="Nhập ghi chú ..."
                 android:importantForAutofill="no"
                 android:includeFontPadding="false"
                 android:inputType="textMultiLine"
@@ -195,7 +197,8 @@
                 android:textColorHint="@color/colorTextHint"
                 android:textSize="@dimen/_13ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutWebURL"/>
+                app:layout_constraintTop_toBottomOf="@id/layoutWebURL"
+                tools:ignore="HardcodedText" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
